@@ -26,20 +26,28 @@ export default function App() {
           <Logo />
           <div className="brand-text">
             <h1>Grayler</h1>
-            <p>Paste notes, get the summary, action items, and decisions.</p>
+            <p>Paste notes or drop a recording, get the summary, action items, and decisions.</p>
           </div>
         </div>
         <button
           className="theme-toggle"
-          onClick={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
-          aria-label="Toggle color theme"
+          onClick={() => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))}
+          aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
         >
           {theme === 'dark' ? '☀️ Light' : '🌙 Dark'}
         </button>
       </header>
+
       <main>
         <Summarizer />
       </main>
+
+      <footer className="footer">
+        <p>
+          Notes are sent to the server only to produce a summary and are not stored. Saved summaries
+          live in this browser.
+        </p>
+      </footer>
     </div>
   )
 }
