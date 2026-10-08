@@ -1,0 +1,17 @@
+{
+  "name": "Grayler",
+  "short_name": "Grayler",
+  "description": "Turn meeting notes and transcripts into a summary, action items, and decisions.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0c16",
+  "theme_color": "#0a0c16",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "256x256",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
