@@ -1,4 +1,10 @@
 .env
+.env.local
+.env.*.local
 node_modules
 dist
-.env.local
+.vercel
+npm-debug.log*
+.DS_Store
+*.local
+coverage
