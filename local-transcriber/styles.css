@@ -1,0 +1,389 @@
+/* local-transcriber component styles.
+   Scoped under .ltx so dropping this file into a host app cannot leak. */
+
+.ltx {
+  --ltx-accent: #7067ff;
+  --ltx-surface: #111421;
+  --ltx-surface-2: #181c2b;
+  --ltx-border: rgba(255, 255, 255, 0.08);
+  --ltx-text: #f2f3f7;
+  --ltx-muted: #9299ae;
+  --ltx-error: #ff6b6b;
+
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--ltx-text);
+}
+
+.ltx[data-theme="light"] {
+  --ltx-surface: #ffffff;
+  --ltx-surface-2: #f0f1f7;
+  --ltx-border: #dfe2ec;
+  --ltx-text: #12141f;
+  --ltx-muted: #62697d;
+  --ltx-error: #c0392b;
+}
+
+.ltx * {
+  box-sizing: border-box;
+}
+
+
+/* ------------------------------- Dropzone ------------------------------- */
+
+.ltx-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  padding: 26px 18px;
+
+  background: var(--ltx-surface-2);
+  border: 1.5px dashed var(--ltx-border);
+  border-radius: 14px;
+
+  text-align: center;
+
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.ltx-dropzone:hover {
+  border-color: color-mix(in srgb, var(--ltx-accent) 45%, var(--ltx-border));
+}
+
+.ltx-dropzone[data-dragging="true"] {
+  border-color: var(--ltx-accent);
+  background: color-mix(in srgb, var(--ltx-accent) 8%, var(--ltx-surface-2));
+}
+
+.ltx-dropzone[data-disabled="true"] {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.ltx-dropzone-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.ltx-dropzone-hint {
+  margin: 0;
+  font-size: 12.5px;
+  color: var(--ltx-muted);
+}
+
+.ltx-file {
+  margin: 6px 0 0;
+  font-size: 12.5px;
+  color: var(--ltx-muted);
+}
+
+.ltx-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+
+/* -------------------------------- Controls ------------------------------- */
+
+.ltx-controls {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.ltx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 150px;
+  flex: 1;
+}
+
+.ltx-field > span {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ltx-muted);
+}
+
+.ltx-field select {
+  padding: 8px 10px;
+
+  background: var(--ltx-surface-2);
+  border: 1px solid var(--ltx-border);
+  border-radius: 9px;
+
+  color: var(--ltx-text);
+  font-family: inherit;
+  font-size: 13px;
+
+  cursor: pointer;
+}
+
+.ltx-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ltx-field select:focus-visible {
+  outline: 2px solid var(--ltx-accent);
+  outline-offset: 2px;
+}
+
+.ltx-field-hint {
+  font-size: 11px;
+  color: var(--ltx-muted);
+}
+
+.ltx-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+}
+
+.ltx-button {
+  padding: 9px 16px;
+
+  border: 0;
+  border-radius: 10px;
+
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: transform 0.12s ease, filter 0.18s ease;
+}
+
+.ltx-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ltx-button-primary {
+  background: linear-gradient(135deg, #675df5, var(--ltx-accent) 55%, #857cff);
+  color: #ffffff;
+}
+
+.ltx-button-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.06);
+}
+
+.ltx-button-secondary {
+  background: transparent;
+  border: 1px solid var(--ltx-border);
+  color: var(--ltx-muted);
+}
+
+.ltx-button-secondary:hover:not(:disabled) {
+  color: var(--ltx-text);
+  border-color: color-mix(in srgb, var(--ltx-accent) 45%, var(--ltx-border));
+}
+
+.ltx-button:focus-visible {
+  outline: 2px solid var(--ltx-accent);
+  outline-offset: 2px;
+}
+
+
+/* ------------------------------- Progress ------------------------------- */
+
+.ltx-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  background: var(--ltx-surface-2);
+  border: 1px solid var(--ltx-border);
+  border-radius: 11px;
+
+  font-size: 13px;
+  color: var(--ltx-muted);
+}
+
+.ltx-progress {
+  height: 5px;
+
+  background: var(--ltx-border);
+  border-radius: 999px;
+
+  overflow: hidden;
+}
+
+.ltx-progress-bar {
+  height: 100%;
+  background: var(--ltx-accent);
+
+  border-radius: 999px;
+
+  transition: width 0.2s ease;
+}
+
+.ltx-progress-bar[data-indeterminate="true"] {
+  width: 35%;
+  animation: ltx-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes ltx-slide {
+  0% { margin-left: -35%; }
+  100% { margin-left: 100%; }
+}
+
+.ltx-error {
+  padding: 11px 13px;
+
+  background: color-mix(in srgb, var(--ltx-error) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ltx-error) 35%, transparent);
+  border-radius: 11px;
+
+  font-size: 13px;
+  color: var(--ltx-error);
+}
+
+.ltx-notice {
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--ltx-muted);
+  margin: 0;
+}
+
+.ltx-badge {
+  display: inline-block;
+  padding: 2px 8px;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  background: color-mix(in srgb, var(--ltx-accent) 15%, transparent);
+  color: var(--ltx-accent);
+}
+
+
+/* -------------------------------- Output -------------------------------- */
+
+.ltx-output {
+  padding: 15px;
+
+  background: var(--ltx-surface);
+  border: 1px solid var(--ltx-border);
+  border-radius: 13px;
+}
+
+.ltx-output-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+
+  margin-bottom: 10px;
+}
+
+.ltx-output-header h4 {
+  margin: 0;
+
+  font-family: "Space Grotesk", system-ui, sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  color: var(--ltx-accent);
+}
+
+.ltx-meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+
+  font-size: 11.5px;
+  color: var(--ltx-muted);
+}
+
+.ltx-text {
+  margin: 0;
+
+  font-size: 14px;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.ltx-timestamps {
+  margin: 12px 0 0;
+  padding-top: 12px;
+
+  border-top: 1px solid var(--ltx-border);
+
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.ltx-timestamps p {
+  display: flex;
+  gap: 10px;
+  margin: 0;
+
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.ltx-timestamps p + p {
+  margin-top: 6px;
+}
+
+.ltx-timestamp {
+  flex-shrink: 0;
+
+  font-variant-numeric: tabular-nums;
+  color: var(--ltx-muted);
+}
+
+.ltx-spinner {
+  width: 13px;
+  height: 13px;
+
+  border: 2px solid var(--ltx-border);
+  border-top-color: var(--ltx-accent);
+
+  border-radius: 50%;
+
+  animation: ltx-spin 0.7s linear infinite;
+}
+
+@keyframes ltx-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ltx-spinner,
+  .ltx-progress-bar[data-indeterminate="true"] {
+    animation: none;
+  }
+
+  .ltx-button {
+    transition: none;
+  }
+}

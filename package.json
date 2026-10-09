@@ -17,6 +17,7 @@
     "assets": "node scripts/optimize-assets.mjs"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",

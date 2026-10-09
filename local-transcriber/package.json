@@ -1,0 +1,39 @@
+{
+  "name": "local-transcriber",
+  "version": "1.0.0",
+  "description": "In-browser speech-to-text using Whisper via transformers.js. Audio never leaves the device.",
+  "license": "MIT",
+  "type": "module",
+  "main": "./index.js",
+  "exports": {
+    ".": "./index.js",
+    "./worker": "./transcribe.worker.js",
+    "./react": "./react.js",
+    "./vanilla": "./vanilla.js",
+    "./styles.css": "./styles.css"
+  },
+  "files": [
+    "index.js",
+    "vanilla.js",
+    "react.js",
+    "audio.js",
+    "models.js",
+    "transcribe.worker.js",
+    "styles.css",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "@huggingface/transformers": ">=3.0.0"
+  },
+  "keywords": [
+    "whisper",
+    "transcription",
+    "speech-to-text",
+    "transformers.js",
+    "webgpu",
+    "wasm",
+    "privacy",
+    "on-device"
+  ],
+  "sideEffects": false
+}
