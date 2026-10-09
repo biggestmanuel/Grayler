@@ -33,9 +33,9 @@ module.exports = {
   transcribeModel: process.env.GROQ_TRANSCRIBE_MODEL || DEFAULTS.transcribeModel,
   maxChars: int(process.env.MAX_INPUT_CHARS, DEFAULTS.maxChars),
   requestTimeoutMs: int(process.env.REQUEST_TIMEOUT_MS, DEFAULTS.requestTimeoutMs),
-  // 12 MB of JSON leaves room for base64 audio within Vercel's 4.5 MB request cap
-  // after the client's own compression.
-  maxAudioBytes: int(process.env.MAX_AUDIO_BYTES, 8 * 1024 * 1024),
+  // Serverless platforms cap the whole request body at 4.5 MB, and base64 inflates
+  // audio by 4/3, so ~3 MB of decoded audio is the most that reliably fits.
+  maxAudioBytes: int(process.env.MAX_AUDIO_BYTES, 3 * 1024 * 1024),
   summarizeRate: DEFAULTS.summarizeRate,
   transcribeRate: DEFAULTS.transcribeRate,
   allowedOrigins: (process.env.ALLOWED_ORIGINS || '')

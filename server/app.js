@@ -19,26 +19,35 @@ function createApp() {
 
   app.set('trust proxy', 1)
 
-  // Restrict CORS to known origins when configured; otherwise allow any origin so
-  // the local dev proxy and preview deployments keep working.
-  const allowAll = config.allowedOrigins.length === 0
+  // Restrict CORS to known origins when ALLOWED_ORIGINS is set; otherwise echo
+  // whatever origin asked so the local dev proxy, preview deployments, and a
+  // separately hosted frontend all work.
+  const allowList = config.allowedOrigins
   app.use((req, res, next) => {
     const origin = req.headers.origin
-    if (!origin || allowAll || config.allowedOrigins.includes(origin)) {
-      if (origin && !allowAll) res.setHeader('Access-Control-Allow-Origin', origin)
+    const allowed = !origin || allowList.length === 0 || allowList.includes(origin)
+
+    if (!allowed) return res.status(403).json({ error: 'Origin not allowed.' })
+
+    if (origin) {
+      res.setHeader('Access-Control-Allow-Origin', allowList.length === 0 ? '*' : origin)
       res.setHeader('Vary', 'Origin')
-      res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-      res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-      if (req.method === 'OPTIONS') return res.sendStatus(204)
-      return next()
     }
-    res.status(403).json({ error: 'Origin not allowed.' })
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
+
+    if (req.method === 'OPTIONS') return res.sendStatus(204)
+    next()
   })
+
+  // Slightly above maxAudioBytes * 4/3 so an oversized-but-valid payload reaches
+  // validateAudio and gets a specific message instead of a bare body-parser error.
+  const bodyLimit = `${Math.ceil((config.maxAudioBytes * 4) / 3 / (1024 * 1024)) + 1}mb`
 
   // Some platforms (Vercel) parse the JSON body before handing the request to
   // the function, which would leave nothing for express to read. Skip parsing
   // in that case instead of hanging on an already-consumed stream.
-  const jsonParser = express.json({ limit: '12mb' })
+  const jsonParser = express.json({ limit: bodyLimit })
   app.use((req, res, next) => {
     if (req.body !== undefined) return next()
     return jsonParser(req, res, next)
@@ -95,6 +104,24 @@ function createApp() {
 
   app.use('/api', (req, res) => res.status(404).json({ error: 'Unknown endpoint.' }))
 
+  // Serve the built frontend when it exists, so `npm run build && npm start`
+  // runs the whole product from one process. On Vercel the static build is
+  // served separately and this bundle has no dist/, so it is skipped.
+  const path = require('path')
+  const fs = require('fs')
+  const distIndex = path.join(__dirname, '..', 'dist', 'index.html')
+
+  if (fs.existsSync(distIndex)) {
+    app.use(express.static(path.join(__dirname, '..', 'dist'), { index: false }))
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api')) return next()
+      res.sendFile(distIndex, (err) => {
+        if (err) next(err)
+      })
+    })
+  }
+
+  // Registered last so it catches errors thrown by the routes above.
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
     const status = err.status || err.statusCode || 500
@@ -105,23 +132,6 @@ function createApp() {
         : 'Something went wrong on the server. Please try again.'
     res.status(status).json({ error: message })
   })
-
-  // Serve the built frontend when it exists, so `npm run build && npm start`
-  // runs the whole product from one process. On Vercel the static build is
-  // served separately and this bundle has no dist/, so it is skipped.
-  const path = require('path')
-  const fs = require('fs')
-  const distIndex = path.join(__dirname, '..', 'dist', 'index.html')
-
-  if (fs.existsSync(distIndex)) {
-    app.use(express.static(path.join(__dirname, '..', 'dist'), { maxAge: '1h', index: false }))
-    app.get('*', (req, res, next) => {
-      if (req.path.startsWith('/api')) return next()
-      res.sendFile(distIndex, (err) => {
-        if (err) next(err)
-      })
-    })
-  }
 
   return app
 }

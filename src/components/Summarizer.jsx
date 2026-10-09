@@ -140,7 +140,9 @@ export default function Summarizer() {
     }
   }
 
-  const tooLong = text.length > 60000
+  // Falls back to the server default until /api/health responds.
+  const maxChars = health?.maxChars || 60000
+  const tooLong = text.length > maxChars
 
   return (
     <div className="summarizer">
@@ -192,6 +194,7 @@ export default function Summarizer() {
             transcribing={phase === 'transcribing'}
             disabled={busy}
             apiConfigured={health?.mode === 'groq'}
+            maxBytes={health?.maxAudioBytes}
           />
         )}
 
@@ -205,7 +208,7 @@ export default function Summarizer() {
           <div className="control-meta">
             <span className={tooLong ? 'char-count is-over' : 'char-count'}>
               {text.length.toLocaleString()} characters
-              {tooLong ? ' — over the 60,000 limit' : ''}
+              {tooLong ? ` — over the ${maxChars.toLocaleString()} limit` : ''}
             </span>
 
             <label className="style-select">

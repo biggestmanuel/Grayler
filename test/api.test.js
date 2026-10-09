@@ -109,6 +109,42 @@ test('OPTIONS preflight is answered', async () => {
   assert.equal(res.status, 204)
 })
 
+test('cors allows any origin when ALLOWED_ORIGINS is unset', async () => {
+  const res = await fetch(`${base}/api/health`, { headers: { Origin: 'https://example.com' } })
+  assert.equal(res.headers.get('access-control-allow-origin'), '*')
+})
+
+test('cors rejects origins outside ALLOWED_ORIGINS', async () => {
+  const config = require('../server/config')
+  const original = config.allowedOrigins
+  config.allowedOrigins = ['https://grayler.vercel.app']
+
+  const isolated = createApp().listen(0)
+  const url = `http://127.0.0.1:${isolated.address().port}/api/health`
+
+  const denied = await fetch(url, { headers: { Origin: 'https://evil.example' } })
+  const allowed = await fetch(url, { headers: { Origin: 'https://grayler.vercel.app' } })
+
+  config.allowedOrigins = original
+  isolated.close()
+
+  assert.equal(denied.status, 403)
+  assert.equal(allowed.status, 200)
+  assert.equal(allowed.headers.get('access-control-allow-origin'), 'https://grayler.vercel.app')
+})
+
+test('an oversized body is rejected with a readable message', async () => {
+  const res = await fetch(`${base}/api/transcribe`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data: 'A'.repeat(5 * 1024 * 1024), filename: 'a.webm' }),
+  })
+
+  const body = await res.json()
+  assert.equal(res.status, 413)
+  assert.match(body.error, /too large/i)
+})
+
 test('rate limiter blocks once the window is exhausted', () => {
   rateLimit.reset()
   const req = { headers: { 'x-forwarded-for': '203.0.113.7' }, ip: '203.0.113.7' }

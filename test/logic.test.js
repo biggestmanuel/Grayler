@@ -99,6 +99,13 @@ test('validateAudio rejects unsupported and malformed payloads', () => {
   assert.equal(validateAudio({ data: 'not base64 !!', filename: 'a.mp3' }).status, 400)
 })
 
+test('validateAudio rejects payloads past the size cap', () => {
+  const config = require('../server/config')
+  const oversized = 'A'.repeat(config.maxAudioBytes + 1)
+
+  assert.equal(validateAudio({ data: oversized, filename: 'a.webm' }).status, 413)
+})
+
 test('validateAudio accepts a data URL and derives a filename', () => {
   const result = validateAudio({
     data: 'data:audio/webm;base64,QUJD',

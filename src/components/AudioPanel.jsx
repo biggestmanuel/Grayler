@@ -9,9 +9,17 @@ import {
   startRecording,
 } from '../lib/audio'
 
-const MAX_LOCAL_BYTES = 8 * 1024 * 1024
+// Fallback until /api/health reports the server's real limit. Serverless
+// platforms cap the request body at 4.5 MB and base64 inflates by 4/3.
+const DEFAULT_MAX_BYTES = 3 * 1024 * 1024
 
-export default function AudioPanel({ onTranscribed, transcribing, disabled, apiConfigured }) {
+export default function AudioPanel({
+  onTranscribed,
+  transcribing,
+  disabled,
+  apiConfigured,
+  maxBytes = DEFAULT_MAX_BYTES,
+}) {
   const [file, setFile] = useState(null)
   const [recording, setRecording] = useState(false)
   const [elapsed, setElapsed] = useState(0)
@@ -45,8 +53,8 @@ export default function AudioPanel({ onTranscribed, transcribing, disabled, apiC
   function selectFile(next) {
     if (!next) return
 
-    if (next.size > MAX_LOCAL_BYTES) {
-      setError(`That file is ${formatBytes(next.size)}. Keep it under ${formatBytes(MAX_LOCAL_BYTES)}.`)
+    if (next.size > maxBytes) {
+      setError(`That file is ${formatBytes(next.size)}. Keep it under ${formatBytes(maxBytes)}.`)
       return
     }
 
@@ -130,7 +138,7 @@ export default function AudioPanel({ onTranscribed, transcribing, disabled, apiC
 
         <p className="dropzone-title">Drop a recording here</p>
         <p className="dropzone-sub">
-          mp3, m4a, wav, ogg, webm, mp4 or flac — up to {formatBytes(MAX_LOCAL_BYTES)}
+          mp3, m4a, wav, ogg, webm, mp4 or flac — up to {formatBytes(maxBytes)}
         </p>
 
         <div className="dropzone-actions">
