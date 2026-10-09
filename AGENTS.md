@@ -46,10 +46,22 @@ committed secret stays in git history even after a later commit deletes it.
   from `GET /api/health`; do not hardcode them in components.
 - `server/lib/extractive.js` is the no-API-key fallback. Every result shape must
   stay consistent whether the summary came from Groq or the fallback.
+- `local-transcriber/` is a self-contained, portable on-device speech-to-text
+  module (Whisper in the browser via transformers.js). It depends only on
+  `@huggingface/transformers` and must stay copy-pasteable into other projects,
+  so keep Grayler-specific code out of it.
 - Server files are CommonJS; the frontend is ESM via Vite. `vite.config.mjs` is
   `.mjs` on purpose, since adding `"type": "module"` would break the server.
 - Keep the dependency count low. Prefer plain Node built-ins over a new package,
   as `scripts/optimize-assets.mjs` does with `node:zlib`.
+
+## Verifying changes
+
+Unit tests do not cover everything. Audio decode, resampling, workers, and model
+inference only work in a real browser, so exercise UI changes by running the
+app and driving it. `toWhisperInput` shipped a frame-count bug that silently
+truncated all audio to silence and no unit test could have caught it, because the
+code needs `OfflineAudioContext` to run at all.
 
 ## Conventions
 

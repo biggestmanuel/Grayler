@@ -37,12 +37,19 @@ export async function decodeAudioFile(file, { audioContext } = {}) {
   }
 }
 
+/**
+ * Number of output frames after resampling.
+ *
+ * Exported separately from the rendering step so the arithmetic can be tested
+ * without a Web Audio implementation.
+ */
+export function outputFrameCount(audioBuffer) {
+  return Math.max(1, Math.floor(audioBuffer.duration * TARGET_SAMPLE_RATE))
+}
+
 /** Downmixes to mono and resamples to 16 kHz using OfflineAudioContext. */
 export async function toWhisperInput(audioBuffer) {
-  const frameCount = Math.ceil(
-    (audioBuffer.duration * audioBuffer.sampleRate) / TARGET_SAMPLE_RATE
-  )
-  const length = Math.max(1, Math.floor(frameCount))
+  const length = outputFrameCount(audioBuffer)
 
   // OfflineAudioContext resamples during rendering, which avoids the aliasing
   // a naive sample-drop would introduce on downsampled audio.

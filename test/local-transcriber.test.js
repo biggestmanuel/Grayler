@@ -148,6 +148,19 @@ test('trimSilence leaves already-tight audio alone', async () => {
   assert.equal(trimmed.length, samples.length)
 })
 
+test('outputFrameCount sizes the resampled buffer from the duration', async () => {
+  const { outputFrameCount, TARGET_SAMPLE_RATE } = await import(
+    pathToFileURL(resolve(__dirname, ROOT, 'audio.js')).href
+  )
+
+  // 11s of 44.1kHz audio must become 11s of 16kHz audio, not 11s / (44100/16000).
+  const buffer = { duration: 11, sampleRate: 44100 }
+  assert.equal(outputFrameCount(buffer), 11 * TARGET_SAMPLE_RATE)
+  assert.equal(outputFrameCount({ duration: 11, sampleRate: 16000 }), 176000)
+  assert.equal(outputFrameCount({ duration: 0.001, sampleRate: 44100 }), 16)
+  assert.ok(outputFrameCount({ duration: 0, sampleRate: 44100 }) >= 1)
+})
+
 test('isSilent distinguishes silence from a quiet tone', async () => {
   const { isSilent } = await import(pathToFileURL(resolve(__dirname, ROOT, 'audio.js')).href)
 

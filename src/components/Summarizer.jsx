@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import AudioPanel from './AudioPanel'
+import LocalTranscribePanel from './LocalTranscribePanel'
 import ResultView from './ResultView'
 import HistoryPanel from './HistoryPanel'
 import { getHealth, postSummarize, postTranscribe } from '../lib/api'
@@ -24,6 +25,8 @@ Dave: error rate is down to 0.2 percent since Tuesday.`
 
 export default function Summarizer() {
   const [tab, setTab] = useState('text')
+  // Local transcription needs no API key, so it is the default when none is set.
+  const [transcribeMode, setTranscribeMode] = useState('server')
   const [text, setText] = useState('')
   const [style, setStyle] = useState('executive')
   const [result, setResult] = useState(null)
@@ -40,7 +43,11 @@ export default function Summarizer() {
   useEffect(() => {
     const controller = new AbortController()
     getHealth(controller.signal)
-      .then(setHealth)
+      .then((data) => {
+        setHealth(data)
+        // Without a server key the browser is the only transcription option.
+        setTranscribeMode(data.mode === 'groq' ? 'server' : 'local')
+      })
       .catch(() => setHealth(null))
     return () => controller.abort()
   }, [])
@@ -160,7 +167,6 @@ export default function Summarizer() {
           aria-selected={tab === 'audio'}
           className={tab === 'audio' ? 'tab is-active' : 'tab'}
           onClick={() => setTab('audio')}
-          disabled={!health?.mode}
         >
           Audio
         </button>
@@ -189,13 +195,46 @@ export default function Summarizer() {
             />
           </>
         ) : (
-          <AudioPanel
-            onTranscribed={handleTranscribe}
-            transcribing={phase === 'transcribing'}
-            disabled={busy}
-            apiConfigured={health?.mode === 'groq'}
-            maxBytes={health?.maxAudioBytes}
-          />
+          <>
+            <div className="mode-switch" role="group" aria-label="Transcription engine">
+              <button
+                className={transcribeMode === 'server' ? 'mode is-active' : 'mode'}
+                onClick={() => setTranscribeMode('server')}
+                disabled={busy || health?.mode !== 'groq'}
+              >
+                Server (Groq)
+              </button>
+              <button
+                className={transcribeMode === 'local' ? 'mode is-active' : 'mode'}
+                onClick={() => setTranscribeMode('local')}
+                disabled={busy}
+              >
+                On device
+              </button>
+            </div>
+
+            {transcribeMode === 'server' ? (
+              <AudioPanel
+                onTranscribed={handleTranscribe}
+                transcribing={phase === 'transcribing'}
+                disabled={busy}
+                apiConfigured={health?.mode === 'groq'}
+                maxBytes={health?.maxAudioBytes}
+              />
+            ) : (
+              <LocalTranscribePanel
+                onTranscribed={({ text, filename }) => {
+                  setText((current) => (current.trim() ? `${current.trim()}\n\n${text}` : text))
+                  setResultMeta((meta) => ({ ...meta, sourceLabel: filename || 'Local recording' }))
+                  setResult(null)
+                  setSavedId(null)
+                  setTab('text')
+                }}
+                disabled={busy}
+                onUseServer={() => setTranscribeMode('server')}
+              />
+            )}
+          </>
         )}
 
         {error && (

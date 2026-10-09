@@ -941,6 +941,138 @@ button:focus-visible {
   color: var(--error);
 }
 
+.link-button {
+  padding: 0;
+  background: none;
+  border: 0;
+
+  color: var(--accent-2);
+  font-size: 13px;
+
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+
+/* =========================
+   ENGINE SWITCH
+========================= */
+
+.mode-switch {
+  display: flex;
+  gap: 4px;
+
+  margin-bottom: 14px;
+
+  padding: 4px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+}
+
+.mode {
+  flex: 1;
+
+  padding: 7px 12px;
+
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+
+  color: var(--text-muted);
+  font-size: 12.5px;
+  font-weight: 500;
+}
+
+.mode:hover:not(:disabled) {
+  color: var(--text);
+  background: rgba(112, 103, 255, 0.06);
+}
+
+.mode.is-active {
+  color: var(--text);
+
+  background: var(--surface);
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+}
+
+.mode:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+
+/* =========================
+   LOCAL TRANSCRIPTION
+========================= */
+
+.local-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hint-local {
+  padding: 11px 13px;
+
+  background: color-mix(in srgb, var(--accent) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+  border-radius: 11px;
+
+  color: var(--text-muted);
+  line-height: 1.55;
+}
+
+.local-controls {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.local-status {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.local-result {
+  padding: 15px;
+
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 13px;
+}
+
+.badge-local {
+  background: color-mix(in srgb, var(--accent) 15%, transparent);
+  color: var(--accent-2);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+.local-transcript {
+  margin: 0;
+  max-height: 320px;
+  overflow-y: auto;
+
+  font-size: 14px;
+  line-height: 1.7;
+
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 
 /* =========================
    HISTORY

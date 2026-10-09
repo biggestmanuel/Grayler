@@ -105,14 +105,13 @@ async function handleTranscribe(message) {
       progress: (index / chunks.length) * 100,
     })
 
-    const { samples: window, offsetSeconds } = chunks[index]
+    const { samples: audioWindow, offsetSeconds } = chunks[index]
 
-    const output = await model(window, {
+    const output = await model(audioWindow, {
       return_timestamps: options.timestamps || true,
-      // language and task must be omitted rather than null.
+      // language and task must be omitted rather than passed as null.
       ...(options.language ? { language: options.language } : {}),
       ...(options.task ? { task: options.task } : {}),
-      ...(options.initialPrompt ? { ...{} } : {}),
     })
 
     const chunkText = (output.text || '').trim()
