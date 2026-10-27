@@ -84,5 +84,19 @@ Meeting text is sent to the server to produce a summary and is not persisted
 anywhere. Saved summaries live in the browser's `localStorage` only. Audio is
 transcribed server-side by Groq and discarded after the request.
 
-If you deploy this publicly, put it behind some form of access control before
-pointing a real Groq key at it — rate limiting alone will not stop abuse.
+If you deploy this publicly, the app is intentionally public — there are no
+accounts, no login, and no saved-user data. That is a deliberate choice, not an
+oversight, so the server-side protections below are what keep it from being
+abused at your expense:
+
+| Protection | What it does |
+| --- | --- |
+| Rate limiting | Per-IP windows on `/api/summarize` and `/api/transcribe`. Tightened on the transcription path because audio is expensive to run. |
+| Upload caps | Pasted text is capped at 60,000 characters; decoded audio is capped at ~3 MB so serverless request-body limits can't be weaponized. |
+| File-type gate | `/api/transcribe` rejects anything that isn't a Whisper-supported audio type by extension or MIME type, and validates the base64 payload. |
+| Size-capped JSON parsing | The body limit is derived from the audio cap, so an oversized payload gets a readable 413 instead of a platform error. |
+| CORS | Echoes allowed origins when `ALLOWED_ORIGINS` is set; otherwise allows any origin for local dev and previews. |
+| Spending cap | There is no server-side spending cap on Groq — set one in your Groq console if you point a real key at a public deployment. |
+
+Because there is no auth, one user can burn the whole bill. Treat `GROQ_API_KEY` as
+shared infrastructure and cap it in Groq before going public.
